@@ -8,32 +8,31 @@ const getCookie = (name: string) => {
   return null;
 };
 
-interface ProtectedRouteProps {
+interface AdminRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const accessToken = getCookie('accessToken');
-  const refreshToken = getCookie('refreshToken');
-
-  if (!accessToken && !refreshToken) {
-    return <Navigate to="/" replace />;
-  }
-
-
+  
   const storedUser = localStorage.getItem('user');
+  let isAdmin = false;
+  
   if (storedUser) {
     try {
       const parsedUser = JSON.parse(storedUser);
-      if (parsedUser.isAdmin === true) {
-        return <Navigate to="/admin" replace />;
-      }
+      isAdmin = parsedUser.isAdmin === true;
     } catch (e) {
       console.error("Failed to parse user data", e);
     }
   }
 
+  if (!accessToken || !isAdmin) {
+  
+    return <Navigate to={accessToken ? "/productlist" : "/"} replace />;
+  }
+
   return <>{children}</>;
 };
 
-export default ProtectedRoute;
+export default AdminRoute;

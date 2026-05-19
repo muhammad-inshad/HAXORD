@@ -16,7 +16,16 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const accessToken = getCookie('accessToken');
   
   if (accessToken) {
-    return <Navigate to="/productlist" replace />;
+    const storedUser = localStorage.getItem('user');
+    let isAdmin = false;
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        isAdmin = parsed.isAdmin === true;
+      } catch (e) {}
+    }
+    
+    return <Navigate to={isAdmin ? "/admin" : "/productlist"} replace />;
   }
 
   return <>{children}</>;

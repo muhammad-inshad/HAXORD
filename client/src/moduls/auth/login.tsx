@@ -88,7 +88,11 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
       toast.success("Login successful");
-      navigate('/productlist');
+      if (response.data.user?.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/productlist');
+      }
     } catch (error: any) {
       console.error(error);
       const errorMsg = error.response?.data?.message || "Invalid email or password";
