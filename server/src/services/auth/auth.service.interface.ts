@@ -26,5 +26,4 @@ refreshToken(
   accessToken: string;
 }>;
 
-logout(): Promise<boolean>;
 }

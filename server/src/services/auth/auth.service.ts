@@ -88,8 +88,5 @@ async refreshToken(token: string) {
     }
   }
 
-  async logout(): Promise<boolean> {
-  return true;
-}
-  
+
 }

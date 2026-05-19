@@ -14,17 +14,11 @@ export class AuthController {
         password
       );
 
-      res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-      });
 
       res.status(201).json({
         success: true,
         message: "User registered successfully",
         user: result.user,
-        accessToken: result.accessToken,
       });
     } catch (error: any) {
       res.status(400).json({
@@ -83,21 +77,5 @@ async refreshToken(req: Request, res: Response) {
   }
 }
 
-async logout(req: Request, res: Response) {
-  try {
-    res.clearCookie("refreshToken");
 
-    await this.authService.logout();
-
-    res.status(200).json({
-      success: true,
-      message: "Logout successful",
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-}
 }
