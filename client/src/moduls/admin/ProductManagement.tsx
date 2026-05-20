@@ -18,6 +18,7 @@ interface Product {
   colors: string[];
   images: string[];
   isActive: boolean;
+  createdAt: string;
 }
 
 const ProductListing = () => {
@@ -27,8 +28,10 @@ const ProductListing = () => {
   const [sortBy, setSortBy] = useState('featured');
   const [searchTerm, setSearchTerm] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
@@ -37,7 +40,7 @@ const ProductListing = () => {
   // Handle Logout
   const handleLogout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/user/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {}, { withCredentials: true });
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -48,7 +51,7 @@ const ProductListing = () => {
     navigate("/");
   };
 
-  // Click outside to close profile dropdown
+  // Close profile modal on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -59,20 +62,38 @@ const ProductListing = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch Products from Backend
+  // Fetch Products using your repository logic
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user/products`, {
+
+        let sortField = 'createdAt';
+        let sortOrder = -1; // descending
+
+        if (sortBy === 'price-low') {
+          sortField = 'price';
+          sortOrder = 1;
+        } else if (sortBy === 'price-high') {
+          sortField = 'price';
+          sortOrder = -1;
+        }
+
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`, {
           params: {
-            productType: selectedCategory === 'All' ? undefined : mapCategoryToBackend(selectedCategory),
-            for: selectedGender === 'All' ? undefined : selectedGender.toLowerCase(),
+            search: searchTerm,
+            page: 1,
+            limit: 50,                    // Adjust as needed
+            sortField,
+            sortOrder,
+            productType: selectedCategory === 'All' ? '' : mapCategory(selectedCategory),
+            for: selectedGender === 'All' ? '' : selectedGender.toLowerCase(),
           },
           withCredentials: true,
         });
-   
-        setProducts(res.data.data);
+
+        setProducts(res.data.data || []);
+        setTotalProducts(res.data.total || 0);
       } catch (error) {
         console.error('Failed to fetch products:', error);
       } finally {
@@ -81,10 +102,9 @@ const ProductListing = () => {
     };
 
     fetchProducts();
-  }, [selectedCategory, selectedGender]);
+  }, [searchTerm, selectedCategory, selectedGender, sortBy]);
 
-  // Map frontend category display to backend productType
-  const mapCategoryToBackend = (category: string): string => {
+  const mapCategory = (cat: string): string => {
     const map: { [key: string]: string } = {
       'T-Shirts': 'tshirt',
       'Shirts': 'shirt',
@@ -92,31 +112,8 @@ const ProductListing = () => {
       'Hats': 'hat',
       'Hoodies': 'hoodie',
     };
-    return map[category] || category.toLowerCase();
+    return map[cat] || cat.toLowerCase();
   };
-
-  // Filter & Sort Logic (Client-side search & sort)
-  const filteredProducts = products
-    .filter((product) => {
-      const matchesSearch =
-        product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brandName.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price-low') return a.price - b.price;
-      if (sortBy === 'price-high') return b.price - a.price;
-      return 0; // featured
-    });
-
-  // Toggle Dark Mode
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -128,7 +125,6 @@ const ProductListing = () => {
               <span className="text-4xl font-bold tracking-tighter text-violet-500">Haxord</span>
             </div>
 
-            {/* Search */}
             <div className="flex-1 max-w-xl mx-8">
               <div className="relative">
                 <Search className="absolute left-4 top-3.5 text-zinc-500" size={20} />
@@ -142,7 +138,6 @@ const ProductListing = () => {
               </div>
             </div>
 
-            {/* Right Icons */}
             <div className="flex items-center gap-6">
               <button
                 onClick={() => setDarkMode(!darkMode)}
@@ -195,9 +190,7 @@ const ProductListing = () => {
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2 rounded-3xl text-sm font-medium transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-violet-600 text-white'
-                    : 'bg-zinc-900 hover:bg-zinc-800'
+                  selectedCategory === cat ? 'bg-violet-600 text-white' : 'bg-zinc-900 hover:bg-zinc-800'
                 }`}
               >
                 {cat}
@@ -235,14 +228,14 @@ const ProductListing = () => {
       {/* Products Section */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <p className="text-zinc-400 mb-6">
-          Showing <span className="text-white font-medium">{filteredProducts.length}</span> products
+          Showing <span className="text-white font-medium">{products.length}</span> products
         </p>
 
         {loading ? (
           <div className="text-center py-20 text-zinc-400">Loading products...</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
+            {products.map((product) => (
               <div
                 key={product._id}
                 className="group bg-zinc-900 rounded-3xl overflow-hidden hover:scale-105 transition-all duration-300 cursor-pointer"
@@ -267,7 +260,7 @@ const ProductListing = () => {
           </div>
         )}
 
-        {!loading && filteredProducts.length === 0 && (
+        {!loading && products.length === 0 && (
           <div className="text-center py-20">
             <p className="text-2xl text-zinc-400">No products found</p>
           </div>

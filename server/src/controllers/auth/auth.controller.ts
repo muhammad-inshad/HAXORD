@@ -101,4 +101,31 @@ console.log("hiiiiiiiiiiiii")
   }
 }
 
+async logout(req: Request, res: Response) {
+  try {
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    });
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+    // Fallback for non-httpOnly accessToken if any
+    res.clearCookie("accessToken", { path: "/" });
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 }

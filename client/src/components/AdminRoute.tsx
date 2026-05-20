@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 import { getCurrentUser } from "../redux/authService";
 import { loginSuccess } from "../redux/slices/authSlice";
+
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import type { RootState } from "../redux/store.ts";
 
-interface AdminRouteProps {
-  children: React.ReactNode;
-}
-
-const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
+const AdminRoute = () => {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state: RootState) => state.auth.user);
+
+  const user = useAppSelector((state) => state.auth.user);
+
   const [loading, setLoading] = useState(!user);
 
   useEffect(() => {
     const fetchUser = async () => {
+      
       if (user) {
         setLoading(false);
         return;
       }
+
       try {
         const data = await getCurrentUser();
-        dispatch(loginSuccess({ user: data.user }));
+
+        // FIXED
+        dispatch(loginSuccess(data.user));
+
       } catch (error) {
         console.log(error);
       } finally {
@@ -46,7 +49,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     return <Navigate to="/productlist" replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 };
 
 export default AdminRoute;
