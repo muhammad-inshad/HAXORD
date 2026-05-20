@@ -1,36 +1,56 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 
-const getCookie = (name: string) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-  return null;
-};
+import { getCurrentUser } from "../redux/authService";
+import { loginSuccess } from "../redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import type { RootState } from "../redux/store.ts";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const accessToken = getCookie('accessToken');
-  const refreshToken = getCookie('refreshToken');
+  const dispatch = useAppDispatch();
+const user = useAppSelector(
+  (state: RootState) => state.auth.user
+);
 
-  if (!accessToken && !refreshToken) {
+  const [loading, setLoading] = useState(!user);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (user) {
+        setLoading(false);
+        return;
+      }
+      try {
+  
+        const data = await getCurrentUser();
+
+        console.log(data);
+
+        dispatch(loginSuccess({ user: data.user }));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
     return <Navigate to="/" replace />;
   }
 
-
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    try {
-      const parsedUser = JSON.parse(storedUser);
-      if (parsedUser.isAdmin === true) {
-        return <Navigate to="/admin" replace />;
-      }
-    } catch (e) {
-      console.error("Failed to parse user data", e);
-    }
+  if (user.isAdmin) {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{children}</>;

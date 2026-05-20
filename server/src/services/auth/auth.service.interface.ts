@@ -26,4 +26,5 @@ refreshToken(
   accessToken: string;
 }>;
 
+getMe(id: string): Promise<{ user: UserResponseDTO }>
 }

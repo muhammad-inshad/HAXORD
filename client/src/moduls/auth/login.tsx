@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useAppDispatch } from "../../redux/hooks";
+import { loginSuccess } from "../../redux/slices/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -9,7 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+   const dispatch = useAppDispatch();
   const [errors, setErrors] = useState({
     email: '',
     password: ''
@@ -87,6 +89,12 @@ const Login = () => {
       if (response.data.user) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
       }
+          dispatch(
+      loginSuccess({
+            user: response.data.user,
+            accessToken: response.data.accessToken,
+          })
+    );
       toast.success("Login successful");
       if (response.data.user?.isAdmin) {
         navigate('/admin');

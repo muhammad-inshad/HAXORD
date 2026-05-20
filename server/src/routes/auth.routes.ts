@@ -1,6 +1,7 @@
 import express from "express";
 import { authContainer } from "../di/auth.di";
 import { AuthController } from "../controllers/auth/auth.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -19,5 +20,8 @@ router.post(
   authController.refreshToken.bind(authController)
 );
 
+// routes/auth.routes.ts
+
+router.get("/me", authMiddleware, authController.getMe.bind(authController));
 
 export default router;

@@ -88,5 +88,20 @@ async refreshToken(token: string) {
     }
   }
 
+async getMe(id: string) {
+  try {
+    console.log("inshad")
+    const user = await this.userRepository.findById(id);
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return {
+      user: UserMapper.toResponse(user),
+    };
+  } catch (error) {
+    throw error;
+  }
+}
 }

@@ -1,35 +1,49 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 
-const getCookie = (name: string) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-  return null;
-};
+import { getCurrentUser } from "../redux/authService";
+import { loginSuccess } from "../redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import type { RootState } from "../redux/store.ts";
 
 interface AdminRouteProps {
   children: React.ReactNode;
 }
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const accessToken = getCookie('accessToken');
-  
-  const storedUser = localStorage.getItem('user');
-  let isAdmin = false;
-  
-  if (storedUser) {
-    try {
-      const parsedUser = JSON.parse(storedUser);
-      isAdmin = parsedUser.isAdmin === true;
-    } catch (e) {
-      console.error("Failed to parse user data", e);
-    }
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state: RootState) => state.auth.user);
+  const [loading, setLoading] = useState(!user);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await getCurrentUser();
+        dispatch(loginSuccess({ user: data.user }));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  if (!accessToken || !isAdmin) {
-  
-    return <Navigate to={accessToken ? "/productlist" : "/"} replace />;
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!user.isAdmin) {
+    return <Navigate to="/productlist" replace />;
   }
 
   return <>{children}</>;
