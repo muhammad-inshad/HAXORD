@@ -14,5 +14,6 @@ adminrouter.get("/products", admin.productcontroller.getAllProducts.bind(admin.p
 adminrouter.get("/products/:id", admin.productcontroller.getProductById.bind(admin.productcontroller));
 adminrouter.put("/products/:id", admin.productcontroller.updateProduct.bind(admin.productcontroller));
 adminrouter.delete("/products/:id", admin.productcontroller.deleteProduct.bind(admin.productcontroller));
+adminrouter.get("/orders",admin.productcontroller.getOrders.bind(admin.productcontroller))
 
 export default adminrouter;

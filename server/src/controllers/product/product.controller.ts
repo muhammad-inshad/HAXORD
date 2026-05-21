@@ -92,4 +92,157 @@ export class ProductController {
             res.status(500).json({ success: false, message: error.message || 'Failed to delete product' });
         }
     }
+
+  async addToCart(req: Request, res: Response) {
+    try {
+      const data = req.body;
+      const id = req.user?.id;
+
+      if (!id) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
+
+      await this.productService.addToCart(data, id);
+
+      return res.status(200).json({
+        success: true,
+        message: "Product added to cart",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong",
+        error,
+      });
+    }
+  }
+
+async getCart(req: Request, res: Response) {
+  try {
+
+    const id = req.user?.id;
+
+    if (!id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const result = await this.productService.getCart(id);
+
+    return res.status(200).json({
+      success: true,
+      cart: result,
+    });
+
+  } catch (error: any) {
+
+    console.error("Get Cart Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch cart",
+    });
+  }
+}
+
+async reomovecart(req: Request, res: Response) {
+
+  try {
+
+
+    const cartId = req.params.id as string;
+
+
+    await this.productService.reomovecart(
+     cartId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart item removed successfully",
+    });
+
+  } catch (error: any) {
+
+    console.error("Remove Cart Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to remove cart item",
+    });
+  }
+}
+
+async updatQuntyty(req: Request, res: Response) {
+
+  try {
+
+    const cartId = req.params.id as string;
+
+    const { quantity } = req.body;
+
+    await this.productService.updatQuntyty(
+      cartId,
+      quantity
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart quantity updated successfully",
+    });
+
+  } catch (error: any) {
+
+    console.error("Update Quantity Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        error.message || "Failed to update quantity",
+    });
+  }
+}
+
+async checkout(req: Request, res: Response){
+    try {
+        const id = req.user?.id;
+
+    if (!id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+        const total=req.body.price
+        const resul=this.productService.checkout(total,id)
+    } catch (error) {
+        
+    }
+}
+
+async getOrders(req: Request, res: Response) {
+  try {
+
+    const result = await this.productService.getOrders();
+
+    return res.status(200).json({
+      success: true,
+      message: "Orders fetched successfully",
+      data: result,
+    });
+
+  } catch (error: any) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+    });
+
+  }
+}
 }

@@ -1,3 +1,6 @@
+import { CartResponseDto } from "../../dtos/cart.dto";
+import { OrderResponseDto } from "../../dtos/OrderDto";
+import { ICartData } from "../../interface/ICartData";
 import { IProduct } from "../../models/product.model";
 
 export interface IProductService {
@@ -14,4 +17,12 @@ export interface IProductService {
     getProductById(id: string): Promise<IProduct | null>;
     updateProduct(id: string, updates: Partial<IProduct>): Promise<IProduct | null>;
     deleteProduct(id: string): Promise<void>;
-}
+    addToCart(data: ICartData, id:string): Promise<void>;
+   getCart(id: string): Promise<CartResponseDto[]>;
+   reomovecart(
+  cartId: string
+): Promise<void>;
+updatQuntyty(cartId:string,quantity:number):Promise<void>;
+checkout(total:number,id:string):Promise<void>;
+getOrders():Promise<OrderResponseDto[]>
+  }

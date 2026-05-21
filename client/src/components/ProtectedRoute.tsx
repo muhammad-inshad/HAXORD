@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 import { getCurrentUser } from "../redux/authService";
 import { loginSuccess } from "../redux/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import type { RootState } from "../redux/store.ts";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC = () => {
   const dispatch = useAppDispatch();
-const user = useAppSelector(
-  (state: RootState) => state.auth.user
-);
+
+  const user = useAppSelector(
+    (state: RootState) => state.auth.user
+  );
 
   const [loading, setLoading] = useState(!user);
 
@@ -24,11 +22,9 @@ const user = useAppSelector(
         setLoading(false);
         return;
       }
-      try {
-  
-        const data = await getCurrentUser();
 
-        console.log(data);
+      try {
+        const data = await getCurrentUser();
 
         dispatch(loginSuccess({ user: data.user }));
       } catch (error) {
@@ -53,7 +49,7 @@ const user = useAppSelector(
     return <Navigate to="/admin" replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, Settings, Activity } from 'lucide-react';
+import { LogOut, Users, Settings, Activity, ShoppingBag } from 'lucide-react';
 import { useAppDispatch } from '../../redux/hooks';
 import { logout } from '../../redux/slices/authSlice';
 import { FRONTEND_URL } from '../../constance/frontend/url';
@@ -42,6 +42,10 @@ const Sidebar = () => {
           <button onClick={() => navigate(FRONTEND_URL.ADMIN_ADD_PRODUCT)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-900 text-zinc-400 hover:text-white rounded-xl transition-colors">
             <Settings size={20} />
             add product
+          </button>
+           <button onClick={() => navigate(FRONTEND_URL.ADMIN_ORDERS)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-900 text-zinc-400 hover:text-white rounded-xl transition-colors">
+            <ShoppingBag size={20} />
+            orders
           </button>
         </nav>
 

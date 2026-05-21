@@ -4,6 +4,7 @@ import { Search, ShoppingBag, Moon, Sun, LogOut } from 'lucide-react';
 import { useAppDispatch } from '../../redux/hooks';
 import { logout } from '../../redux/slices/authSlice';
 import axios from 'axios';
+import ProductDetails from './ProductDetails';
 
 interface Product {
   _id: string;
@@ -29,7 +30,7 @@ const ProductListing = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -37,15 +38,15 @@ const ProductListing = () => {
   // Handle Logout
   const handleLogout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/user/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {}, { withCredentials: true });
     } catch (error) {
       console.error('Logout error:', error);
     }
-    document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    localStorage.removeItem("user");
+    document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.removeItem('user');
     dispatch(logout());
-    navigate("/");
+    navigate('/');
   };
 
   // Click outside to close profile dropdown
@@ -94,7 +95,9 @@ const ProductListing = () => {
     };
     return map[category] || category.toLowerCase();
   };
-
+ const cart=()=>{
+  navigate("/cart")
+ }
   // Filter & Sort Logic (Client-side search & sort)
   const filteredProducts = products
     .filter((product) => {
@@ -151,11 +154,9 @@ const ProductListing = () => {
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
 
-              <button className="relative w-10 h-10 flex items-center justify-center rounded-2xl bg-zinc-900 hover:bg-zinc-800 transition-colors">
+              <button onClick={()=>cart()} className="relative w-10 h-10 flex items-center justify-center rounded-2xl bg-zinc-900 hover:bg-zinc-800 transition-colors">
                 <ShoppingBag size={20} />
-                <span className="absolute -top-1 -right-1 bg-violet-600 text-xs font-medium w-5 h-5 rounded-full flex items-center justify-center">
-                  3
-                </span>
+              
               </button>
 
               <div className="relative" ref={profileRef}>
@@ -245,6 +246,7 @@ const ProductListing = () => {
             {filteredProducts.map((product) => (
               <div
                 key={product._id}
+                  onClick={() => setSelectedProduct(product)} 
                 className="group bg-zinc-900 rounded-3xl overflow-hidden hover:scale-105 transition-all duration-300 cursor-pointer"
               >
                 <div className="relative">
@@ -273,6 +275,10 @@ const ProductListing = () => {
           </div>
         )}
       </div>
+      <ProductDetails
+  product={selectedProduct}
+  onClose={() => setSelectedProduct(null)}
+/>
 
       {/* Footer */}
       <footer className="bg-black py-16 border-t border-zinc-800 mt-16">
@@ -310,6 +316,7 @@ const ProductListing = () => {
               <li>Terms</li>
             </ul>
           </div>
+
         </div>
       </footer>
     </div>
