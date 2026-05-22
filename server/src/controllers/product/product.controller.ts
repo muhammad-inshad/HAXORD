@@ -12,7 +12,7 @@ export class ProductController {
             const sortField = req.query.sortField as string || "createdAt";
             const sortOrder = parseInt(req.query.sortOrder as string) || -1;
             const productType = req.query.productType as string || undefined;
-            const forGender = req.query.forGender as string || undefined;
+           const forGender = req.query.for as string || undefined;   // ← Correct
 
             const { data, total } = await this.productService.getProducts(
                 search,
@@ -51,7 +51,7 @@ export class ProductController {
     }
 
     async getAllProducts(req: Request, res: Response): Promise<void> {
-        // Reuse getProducts with defaults
+
         await this.getProducts(req, res);
     }
 
@@ -220,8 +220,16 @@ async checkout(req: Request, res: Response){
     }
         const total=req.body.price
         const resul=this.productService.checkout(total,id)
+        return res.status(200).json({
+          success:true,
+                message: "successfull",
+        })
     } catch (error) {
-        
+            return res.status(500).json({
+      success: false,
+      message:
+       "Failed to update cheackoutt",
+    });
     }
 }
 
@@ -233,6 +241,31 @@ async getOrders(req: Request, res: Response) {
     return res.status(200).json({
       success: true,
       message: "Orders fetched successfully",
+      data: result,
+    });
+
+  } catch (error: any) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+    });
+
+  }
+}
+async addAddress(req: Request, res: Response) {
+  try {
+
+     const userId = req.user?.id;
+     if(!userId){
+      return
+     }
+
+    const result = await this.productService.addAddress(userId,req.body);
+
+    return res.status(200).json({
+      success: true,
+      message: "address added successfully",
       data: result,
     });
 

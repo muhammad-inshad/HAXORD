@@ -12,5 +12,6 @@ userrouter.get("/cart", productController.getCart.bind(productController));
 userrouter.delete("/cart/:id",productController.reomovecart.bind(productController))
 userrouter.put("/cart/:id",productController.updatQuntyty.bind(productController))
 userrouter.post("/checkout",productController.checkout.bind(productController))
+userrouter.post("/address",productController.addAddress.bind(productController))
 
 export default userrouter;

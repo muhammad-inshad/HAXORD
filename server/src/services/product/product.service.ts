@@ -11,8 +11,10 @@ import { IorderRepo } from "../../repositories/order/order.repository.interface"
 import { OrderResponseDto } from "../../dtos/OrderDto";
 import { OrderMapper } from "../../mappers/OrderMapper";
 
+import { IUserRepository } from "../../repositories/user/user.repository.interface";
+
 export class ProductService implements IProductService {
-    constructor(private readonly productRepository: IproductRepo,private readonly cartRepo:ICartRepo,private readonly orderRepo:IorderRepo) {}
+    constructor(private readonly productRepository: IproductRepo,private readonly cartRepo:ICartRepo,private readonly orderRepo:IorderRepo,private readonly userRepo:IUserRepository) {}
 
     async getProducts(
         search: string = "",
@@ -227,4 +229,28 @@ async getOrders(): Promise<OrderResponseDto[]> {
     OrderMapper.toResponse(order)
   );
 }
+
+async addAddress(userId: string, addressData: any): Promise<any> {
+
+  const user = await this.userRepo.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.address.push({
+    fullName: addressData.fullName,
+    phone: addressData.phone,
+    houseName: addressData.houseName,
+    city: addressData.city,
+    state: addressData.state,
+    pincode: addressData.pincode,
+    country: addressData.country,
+  });
+
+  await user.save();
+
+  return user;
+}
+
 }

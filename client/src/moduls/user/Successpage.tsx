@@ -34,14 +34,14 @@ const SuccessPage = () => {
         {/* Buttons */}
         <div className="flex flex-col w-full gap-3">
           <button
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/productlist')}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors"
           >
             <ShoppingBag size={17} />
             Continue Shopping
           </button>
           <button
-            onClick={() => navigate('/orders')}
+            onClick={() => navigate('/cart')}
             className="w-full py-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors text-sm"
           >
             View My Orders

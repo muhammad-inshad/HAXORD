@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-import { Search,  Edit3, Trash2, Plus, X, Upload, Image as ImageIcon } from 'lucide-react';
-
+import { Search, Edit3, Trash2, Plus, X, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 
@@ -43,6 +41,11 @@ const ProductListing = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Pagination State Strings
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 5; // Adjusted from 50 to 10 for better viewable tracking
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -71,8 +74,8 @@ const ProductListing = () => {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products`, {
         params: {
           search: searchTerm,
-          page: 1,
-          limit: 50,
+          page: currentPage,
+          limit: itemsPerPage,
           sortField,
           sortOrder,
           productType: selectedCategory === 'All' ? '' : selectedCategory,
@@ -81,8 +84,14 @@ const ProductListing = () => {
         withCredentials: true,
       });
 
-      // Adjust this according to whether your backend returns res.data.data or res.data directly
-      setProducts(res.data.data || res.data || []);
+      // Backend response structures usually contain data array + pagination metadata
+      if (res.data.success || res.data.data) {
+        setProducts(res.data.data || []);
+        // Safely check for back-end dynamic count parameters like totalPages or totalDocs
+        setTotalPages(res.data.totalPages || Math.ceil((res.data.totalDocs || res.data.count || 1) / itemsPerPage) || 1);
+      } else {
+        setProducts(res.data || []);
+      }
      
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -91,24 +100,30 @@ const ProductListing = () => {
     }
   };
 
+  // Reset back to page 1 whenever search, filtering, or sorting properties mutate
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedGender, sortBy]);
+
+  // Re-fetch dataset on lifecycle dependency changes
   useEffect(() => {
     fetchProducts();
-  }, [searchTerm, selectedCategory, selectedGender, sortBy]);
+  }, [currentPage, searchTerm, selectedCategory, selectedGender, sortBy]);
 
   // Execute true DELETE routing sequence
   const handleDeleteProduct = async (productId: string) => {
     if (!window.confirm('Are you sure you want to completely purge this product record?')) return;
     
     try {
-      // Optimistic update to keep UI snappy
       setProducts(prev => prev.filter(p => p._id !== productId));
       
       await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${productId}`, {
         withCredentials: true 
       });
+      fetchProducts();
     } catch (error) {
       console.error('Failed to delete product node:', error);
-      fetchProducts(); // Rollback if backend fails
+      fetchProducts(); 
     }
   };
 
@@ -175,10 +190,8 @@ const ProductListing = () => {
       };
 
       if (modalMode === 'add') {
-        // Matches: POST /api/admin/products
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products`, processedPayload, { withCredentials: true });
       } else {
-        // Matches: PUT /api/admin/products/:id
         await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${editingProductId}`, processedPayload, { withCredentials: true });
       }
 
@@ -232,7 +245,6 @@ const ProductListing = () => {
                   {cat === 'tshirt' ? 'T-Shirt' : cat}
                 </button>
               ))}
-
             </div>
           </div>
         </nav>
@@ -242,7 +254,7 @@ const ProductListing = () => {
             <div>
               <h1 className="text-xl font-bold tracking-tight text-white">Product Collection Matrix</h1>
               <p className="text-zinc-500 text-xs mt-1">
-                Connected to Database Cluster — <span className="text-violet-400 font-mono font-medium">{products.length} entries matching</span>
+                Connected to Database Cluster — <span className="text-violet-400 font-mono font-medium">Page {currentPage} of {totalPages}</span>
               </p>
             </div>
             
@@ -343,6 +355,49 @@ const ProductListing = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* DOM UI Pagination Bar Matrix */}
+              <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-800 bg-zinc-900/20 text-xs text-zinc-400 font-mono">
+                <div>
+                  Showing page <span className="text-zinc-100 font-semibold">{currentPage}</span> of <span className="text-zinc-100 font-semibold">{totalPages}</span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 hover:text-white disabled:opacity-40 disabled:hover:bg-zinc-900 disabled:hover:text-zinc-400 transition-all cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft size={14} />
+                    Prev
+                  </button>
+                  
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-8 h-8 rounded-lg text-center font-medium transition-all ${
+                          currentPage === pageNum
+                            ? 'bg-violet-600 text-white'
+                            : 'hover:bg-zinc-800 border border-transparent'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 hover:text-white disabled:opacity-40 disabled:hover:bg-zinc-900 disabled:hover:text-zinc-400 transition-all cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    Next
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
               </div>
             </div>
           )}

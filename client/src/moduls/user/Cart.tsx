@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Trash2, Minus, Plus, Shield, Truck, RotateCcw, ArrowLeft, ShoppingBag } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { FRONTEND_URL } from '../../constance/frontend/url';
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 interface CartItem {
@@ -96,10 +97,10 @@ const handleCheckout = async () => {
       { price: total },
       { withCredentials: true }
     );
-
+console.log(result)
     if (result.data.success) {
- 
-      navigate("/");
+      
+      navigate(FRONTEND_URL.SUCCESSPAGE);
 
     }
   } catch (error: any) {

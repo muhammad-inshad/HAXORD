@@ -25,4 +25,5 @@ export interface IProductService {
 updatQuntyty(cartId:string,quantity:number):Promise<void>;
 checkout(total:number,id:string):Promise<void>;
 getOrders():Promise<OrderResponseDto[]>
+addAddress(user:string,addressData: any): Promise<void>
   }
