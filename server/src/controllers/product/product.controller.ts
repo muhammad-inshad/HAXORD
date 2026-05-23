@@ -278,4 +278,99 @@ async addAddress(req: Request, res: Response) {
 
   }
 }
+
+async getorderUser(req:Request,res:Response){
+  try {
+     const userId = req.user?.id;
+     if(!userId){
+      return
+     }
+      const result = await this.productService.getorderUser(userId);
+
+      return res.status(200).json({
+      success: true,
+      message: "successfull",
+      data: result,
+    });
+  } catch (error:any) {
+      return res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+    });
+
+  }
+}
+
+async wishlist(req:Request,res:Response){
+  try {
+    const { productId } = req.body;
+     const userId = req.user?.id;
+     if(!userId){
+      return
+     }
+  
+      const result = await this.productService.wishlistadd(userId,productId);
+
+return res.status(200).json({
+      success: true,
+      message: "successfull",
+      data: result,
+    });
+  } catch (error) {
+       return res.status(500).json({
+      success: false,
+      message:  "Something went wrong",
+    });
+  }
+}
+
+async wishlistDelete(req:Request,res:Response){
+  try {
+const id=  req.params.id as string
+if(!id){
+  return
+}
+ const userId = req.user?.id;
+     if(!userId){
+      return
+     }
+       const result = await this.productService.wishlistDelete(userId,id);
+
+return res.status(200).json({
+      success: true,
+      message: "successfull",
+      data: result,
+    });
+  } catch (error) {
+          return res.status(500).json({
+      success: false,
+      message:  "Something went wrong",
+    });
+  }
+}
+
+async getwishlist(req:Request,res:Response){
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const result = await this.productService.getwishlist(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "successfull",
+      data: result,
+    });
+  } catch (error) {
+            return res.status(500).json({
+      success: false,
+      message:  "Something went wrong",
+    });
+  }
+}
 }

@@ -16,4 +16,6 @@ export interface IBaseRepository<T> {
   delete(id: string): Promise<T | null>;
 
   deleteMany(filter: QueryFilter<T>): Promise<void>;
+
+  deleteOne(filter: QueryFilter<T>): Promise<void>;
 }

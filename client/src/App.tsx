@@ -16,6 +16,8 @@ import SuccessPage from "./moduls/user/Successpage";
 
 import Orders from "./moduls/admin/Orders";
 import CartPage from "./moduls/user/Cart";
+import UserOrders from "./moduls/user/UserOrders";
+import Wishlist from "./moduls/user/Wishlist";
 
 function App() {
   return (
@@ -48,6 +50,9 @@ function App() {
 <Route element={<ProtectedRoute />}>
   <Route path={FRONTEND_URL.PRODUCT_LIST} element={<ProductListing />} />
   <Route path={FRONTEND_URL.CART} element={<CartPage />} />
+  <Route path={FRONTEND_URL.USERORDER} element={<UserOrders/>}/>
+  <Route path={FRONTEND_URL.WISHLIST} element={<Wishlist />} />
+
 </Route>
 
         {/* ADMIN */}

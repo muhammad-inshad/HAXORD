@@ -12,9 +12,13 @@ import { OrderResponseDto } from "../../dtos/OrderDto";
 import { OrderMapper } from "../../mappers/OrderMapper";
 
 import { IUserRepository } from "../../repositories/user/user.repository.interface";
+import { sendOrderMail } from "../mail/mail.service";
+import { IWishlistRepository } from "../../repositories/wishlist/wishlist.repository.interface";
+import { IWishlist } from "../../models/wishlist.model";
+
 
 export class ProductService implements IProductService {
-    constructor(private readonly productRepository: IproductRepo,private readonly cartRepo:ICartRepo,private readonly orderRepo:IorderRepo,private readonly userRepo:IUserRepository) {}
+    constructor(private readonly productRepository: IproductRepo,private readonly cartRepo:ICartRepo,private readonly orderRepo:IorderRepo,private readonly userRepo:IUserRepository,private readonly whishlistRepo:IWishlistRepository) {}
 
     async getProducts(
         search: string = "",
@@ -36,7 +40,7 @@ export class ProductService implements IProductService {
         );
     }
     async createProduct(data: Partial<IProduct>): Promise<IProduct> {
-        // Assuming repository has a create method
+ 
         return this.productRepository.create(data as IProduct);
     }
 
@@ -145,6 +149,8 @@ async checkout(total: number, id: string): Promise<void> {
     userId: id,
   });
 
+  const user=await this.userRepo.findOne({_id:id})
+
   if (!cartItems || cartItems.length === 0) {
     throw new Error("Cart is empty");
   }
@@ -182,7 +188,7 @@ async checkout(total: number, id: string): Promise<void> {
     );
 
     // create order
-    await this.orderRepo.create({
+    const order=await this.orderRepo.create({
 
       userId: item.userId,
 
@@ -214,7 +220,15 @@ async checkout(total: number, id: string): Promise<void> {
         return date;
       })(),
     });
+console.log(user)
+    await sendOrderMail(
+  user?.email || "",
+  user?.name || "User",
+  order._id.toString()
+);
   }
+
+
 
   await this.cartRepo.deleteMany({
     userId: id,
@@ -252,5 +266,51 @@ async addAddress(userId: string, addressData: any): Promise<any> {
 
   return user;
 }
+async getorderUser(userId: string): Promise<OrderResponseDto[]> {
 
+  const result = await this.orderRepo.find({
+    userId: userId
+  });
+
+  return result.map((order) =>
+    OrderMapper.toResponse(order)
+  );
+}
+
+async wishlistadd(
+  userId: string,
+  productId: string
+): Promise<boolean> {
+
+  const existing = await this.whishlistRepo.findOne({
+    userId,
+    productId,
+  });
+
+  if (existing) {
+    return false;
+  }
+
+  await this.whishlistRepo.create({
+    userId: new mongoose.Types.ObjectId(userId),
+    productId: new mongoose.Types.ObjectId(productId),
+  });
+
+  return true;
+}
+
+async getwishlist(userId: string): Promise<IWishlist[]> {
+
+  return await this.whishlistRepo.findByUserId(userId);
+}
+
+async wishlistDelete(
+  userId: string,
+  productId: string
+): Promise<boolean> {
+
+  await this.whishlistRepo.deleteByUserAndProduct(userId, productId);
+
+  return true;
+}
 }

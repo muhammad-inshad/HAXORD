@@ -47,4 +47,11 @@ async findAll(): Promise<T[]> {
   ): Promise<void> {
     await this.model.deleteMany(filter);
   }
+
+  async deleteOne(
+  filter: QueryFilter<T>
+): Promise<void> {
+
+  await this.model.deleteOne(filter);
+}
 }

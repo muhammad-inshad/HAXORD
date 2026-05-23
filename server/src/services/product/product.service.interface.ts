@@ -2,6 +2,7 @@ import { CartResponseDto } from "../../dtos/cart.dto";
 import { OrderResponseDto } from "../../dtos/OrderDto";
 import { ICartData } from "../../interface/ICartData";
 import { IProduct } from "../../models/product.model";
+import { IWishlist } from "../../models/wishlist.model";
 
 export interface IProductService {
     getProducts(
@@ -25,5 +26,9 @@ export interface IProductService {
 updatQuntyty(cartId:string,quantity:number):Promise<void>;
 checkout(total:number,id:string):Promise<void>;
 getOrders():Promise<OrderResponseDto[]>
-addAddress(user:string,addressData: any): Promise<void>
+addAddress(user:string,addressData: any): Promise<void>;
+getorderUser(userId:string):Promise<OrderResponseDto[]>
+wishlistadd(userId:string,productId:string):Promise<boolean>
+getwishlist(userId: string):Promise<IWishlist[]>
+wishlistDelete(userId: string,id:String):Promise<boolean>
   }

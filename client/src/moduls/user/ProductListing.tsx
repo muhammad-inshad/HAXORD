@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ShoppingBag, Moon, Sun, LogOut, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ShoppingBag, Moon, Sun, LogOut, X, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { useAppDispatch } from '../../redux/hooks';
 import { logout } from '../../redux/slices/authSlice';
 import axios from 'axios';
 import ProductDetails from './ProductDetails';
 import toast from 'react-hot-toast';
+import { FRONTEND_URL } from '../../constance/frontend/url';
 
 interface Product {
   _id: string;
@@ -180,6 +181,8 @@ const ProductListing = () => {
 
   const goToCart = () => navigate("/cart");
 
+  const orderpage=()=>navigate(FRONTEND_URL.USERORDER)
+  const wishlist=()=>navigate(FRONTEND_URL.WISHLIST)
   // Filter & Sort (Client-side - only on current page data)
   const filteredProducts = products
     .filter((product) => {
@@ -255,7 +258,20 @@ const ProductListing = () => {
                       </div>
                       <h4 className="text-white font-semibold">My Profile</h4>
                     </div>
-
+                  <button
+  onClick={orderpage}
+  className="w-full flex items-center gap-2 text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1"
+>
+  <ShoppingBag size={18} />
+  <span>My Orders</span>
+</button>
+         <button
+  onClick={wishlist}
+  className="w-full flex items-center gap-2 text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1"
+>
+  <Heart  size={18} />
+  <span>wishlist</span>
+</button>
                     <button onClick={openAddressModal} className="w-full text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1">
                       ➕ Add Address
                     </button>

@@ -13,5 +13,8 @@ userrouter.delete("/cart/:id",productController.reomovecart.bind(productControll
 userrouter.put("/cart/:id",productController.updatQuntyty.bind(productController))
 userrouter.post("/checkout",productController.checkout.bind(productController))
 userrouter.post("/address",productController.addAddress.bind(productController))
-
+userrouter.get("/userorders",productController.getorderUser.bind(productController))
+userrouter.post("/wishlist",productController.wishlist.bind(productController))
+userrouter.delete("/wishlist/:id",productController.wishlistDelete.bind(productController))
+userrouter.get("/wishlist",productController.getwishlist.bind(productController))
 export default userrouter;

@@ -9,6 +9,8 @@ export const FRONTEND_URL = {
   PRODUCT_LIST: "/productlist",
   PROFILE: "/profile",
   CART:"/cart",
+  USERORDER:"/userOrder",
+  WISHLIST: "/wishlist",
 
   // admin
   ADMIN_DASHBOARD: "/admin",
