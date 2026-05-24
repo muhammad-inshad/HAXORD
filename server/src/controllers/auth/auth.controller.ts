@@ -28,40 +28,6 @@ export class AuthController {
     }
   }
 
-  async login(req: Request, res: Response) {
-  try {
-    const { email, password } = req.body;
-
-    const result = await this.authService.login(
-      email,
-      password
-    );
-
-    res.cookie("refreshToken", result.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "strict",
-    });
-
-    res.cookie("accessToken", result.accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      user: result.user,
-      accessToken: result.accessToken,
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-}
 
 async refreshToken(req: Request, res: Response) {
   try {
@@ -105,30 +71,71 @@ async getMe(req: Request, res: Response) {
   }
 }
 
+async login(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
+
+    const result = await this.authService.login(
+      email,
+      password
+    );
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    res.cookie("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user: result.user,
+      accessToken: result.accessToken,
+    });
+
+  } catch (error: any) {
+
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+}
+
 async logout(req: Request, res: Response) {
   try {
+
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
     });
+
     res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
-    // Fallback for non-httpOnly accessToken if any
-    res.clearCookie("accessToken", { path: "/" });
 
     res.status(200).json({
       success: true,
       message: "Logout successful",
     });
+
   } catch (error: any) {
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 }
 
