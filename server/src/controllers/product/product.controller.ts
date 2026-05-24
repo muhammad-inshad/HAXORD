@@ -41,7 +41,32 @@ export class ProductController {
     }
     async createProduct(req: Request, res: Response): Promise<void> {
         try {
-            const data = req.body;
+          console.log("hiii")
+            const data = { ...req.body };
+console.log("req.file",req.file)
+            if (req.file) {
+                data.images = [req.file.path];
+            }
+
+       
+            if (data.price !== undefined) data.price = Number(data.price);
+            if (data.stock !== undefined) data.stock = Number(data.stock);
+
+            if (typeof data.sizes === 'string') {
+                try {
+                    data.sizes = JSON.parse(data.sizes);
+                } catch {
+                    data.sizes = data.sizes.split(',').map((s: string) => s.trim()).filter(Boolean);
+                }
+            }
+            if (typeof data.colors === 'string') {
+                try {
+                    data.colors = JSON.parse(data.colors);
+                } catch {
+                    data.colors = data.colors.split(',').map((c: string) => c.trim()).filter(Boolean);
+                }
+            }
+
             const created = await this.productService.createProduct(data);
             res.status(201).json({ success: true, data: created });
         } catch (error: any) {
@@ -72,8 +97,42 @@ export class ProductController {
 
     async updateProduct(req: Request, res: Response): Promise<void> {
         try {
-              const id = req.params.id as string;
-            const updates = req.body;
+            const id = req.params.id as string;
+            const updates = { ...req.body };
+
+            // Map uploaded Cloudinary image if a new one is selected
+            if (req.file) {
+                updates.images = [req.file.path];
+            } else if (updates.images) {
+                if (typeof updates.images === 'string') {
+                    try {
+                        updates.images = JSON.parse(updates.images);
+                    } catch {
+                        updates.images = updates.images.split(',').map((i: string) => i.trim()).filter(Boolean);
+                    }
+                }
+            }
+
+            // Convert numbers
+            if (updates.price !== undefined) updates.price = Number(updates.price);
+            if (updates.stock !== undefined) updates.stock = Number(updates.stock);
+
+            // Parse arrays
+            if (typeof updates.sizes === 'string') {
+                try {
+                    updates.sizes = JSON.parse(updates.sizes);
+                } catch {
+                    updates.sizes = updates.sizes.split(',').map((s: string) => s.trim()).filter(Boolean);
+                }
+            }
+            if (typeof updates.colors === 'string') {
+                try {
+                    updates.colors = JSON.parse(updates.colors);
+                } catch {
+                    updates.colors = updates.colors.split(',').map((c: string) => c.trim()).filter(Boolean);
+                }
+            }
+
             const updated = await this.productService.updateProduct(id, updates);
             res.status(200).json({ success: true, data: updated });
         } catch (error: any) {
@@ -219,7 +278,7 @@ async checkout(req: Request, res: Response){
       });
     }
         const total=req.body.price
-        const resul=this.productService.checkout(total,id)
+        const resul = await this.productService.checkout(total,id)
         return res.status(200).json({
           success:true,
                 message: "successfull",

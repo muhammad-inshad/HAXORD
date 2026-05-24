@@ -28,10 +28,14 @@ export class AuthService {
 
     const accessToken = generateAccessToken({
       id: user._id,
+      email: user.email,
+      isAdmin: user.isAdmin || false,
     });
 
     const refreshToken = generateRefreshToken({
       id: user._id,
+      email: user.email,
+      isAdmin: user.isAdmin || false,
     });
 
     return {
@@ -59,10 +63,14 @@ export class AuthService {
 
   const accessToken = generateAccessToken({
     id: user._id,
+    email: user.email,
+    isAdmin: user.isAdmin || false,
   });
 
   const refreshToken = generateRefreshToken({
     id: user._id,
+    email: user.email,
+    isAdmin: user.isAdmin || false,
   });
 
   return {
@@ -90,7 +98,6 @@ async refreshToken(token: string) {
 
 async getMe(id: string) {
   try {
-    console.log("inshad")
     const user = await this.userRepository.findById(id);
 
     if (!user) {

@@ -28,6 +28,18 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminrouter);
 app.use("/api/user",userrouter);
 
+import upload from "./middleware/upload";
+import { adminContiner } from "./di/admin.di";
+app.post("/test-create", upload.single("image"), async (req, res, next) => {
+  try {
+    const admin = adminContiner();
+    await admin.productcontroller.createProduct(req, res);
+  } catch (err: any) {
+    console.error("TEST CREATE ENDPOINT FAILED:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

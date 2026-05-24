@@ -14,8 +14,35 @@ export class ProductController {
     res: Response
   ): Promise<void> {
     try {
+      const data = { ...req.body };
+
+      // Map uploaded Cloudinary image
+      if (req.file) {
+        data.images = [req.file.path];
+      }
+
+      // Convert numbers
+      if (data.price !== undefined) data.price = Number(data.price);
+      if (data.stock !== undefined) data.stock = Number(data.stock);
+
+      // Parse arrays
+      if (typeof data.sizes === 'string') {
+        try {
+          data.sizes = JSON.parse(data.sizes);
+        } catch {
+          data.sizes = data.sizes.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+      }
+      if (typeof data.colors === 'string') {
+        try {
+          data.colors = JSON.parse(data.colors);
+        } catch {
+          data.colors = data.colors.split(',').map((c: string) => c.trim()).filter(Boolean);
+        }
+      }
+
       const product = await this.productService.createProduct(
-        req.body
+        data
       );
 
       res.status(201).json({
@@ -23,6 +50,7 @@ export class ProductController {
         product,
       });
     } catch (error) {
+      console.error("Failed to create product:", error);
       res.status(500).json({
         success: false,
         message: "Failed to create product",
@@ -93,11 +121,46 @@ export class ProductController {
     res: Response
   ): Promise<void> {
     try {
-   const id = req.params.id as string;
+      const id = req.params.id as string;
+      const data = { ...req.body };
+
+      // Map uploaded Cloudinary image if a new one is selected
+      if (req.file) {
+        data.images = [req.file.path];
+      } else if (data.images) {
+        if (typeof data.images === 'string') {
+          try {
+            data.images = JSON.parse(data.images);
+          } catch {
+            data.images = data.images.split(',').map((i: string) => i.trim()).filter(Boolean);
+          }
+        }
+      }
+
+      // Convert numbers
+      if (data.price !== undefined) data.price = Number(data.price);
+      if (data.stock !== undefined) data.stock = Number(data.stock);
+
+      // Parse arrays
+      if (typeof data.sizes === 'string') {
+        try {
+          data.sizes = JSON.parse(data.sizes);
+        } catch {
+          data.sizes = data.sizes.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+      }
+      if (typeof data.colors === 'string') {
+        try {
+          data.colors = JSON.parse(data.colors);
+        } catch {
+          data.colors = data.colors.split(',').map((c: string) => c.trim()).filter(Boolean);
+        }
+      }
+
       const updatedProduct =
         await this.productService.updateProduct(
           id,
-          req.body
+          data
         );
 
       if (!updatedProduct) {
@@ -114,6 +177,7 @@ export class ProductController {
         updatedProduct,
       });
     } catch (error) {
+      console.error("Failed to update product:", error);
       res.status(500).json({
         success: false,
         message: "Failed to update product",

@@ -43,6 +43,12 @@ export class AuthController {
       sameSite: "strict",
     });
 
+    res.cookie("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
     res.status(200).json({
       success: true,
       message: "Login successful",
