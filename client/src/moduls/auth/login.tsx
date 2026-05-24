@@ -83,12 +83,7 @@ const Login = () => {
       );
 
       console.log("Login successful:", response.data);
-      if (response.data.accessToken) {
-        document.cookie = `accessToken=${response.data.accessToken}; path=/; max-age=86400; SameSite=Strict`;
-      }
-      if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
+
           dispatch(
       loginSuccess({
             user: response.data.user,

@@ -4,7 +4,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { getCurrentUser } from "../redux/authService";
 import { loginSuccess } from "../redux/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import type { RootState } from "../redux/store.ts";
+import type { RootState } from "../redux/store";
 
 
 const ProtectedRoute: React.FC = () => {

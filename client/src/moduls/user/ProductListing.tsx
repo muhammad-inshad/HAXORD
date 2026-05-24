@@ -181,8 +181,8 @@ const ProductListing = () => {
 
   const goToCart = () => navigate("/cart");
 
-  const orderpage=()=>navigate(FRONTEND_URL.USERORDER)
-  const wishlist=()=>navigate(FRONTEND_URL.WISHLIST)
+  const orderpage = () => navigate(FRONTEND_URL.USERORDER)
+  const wishlist = () => navigate(FRONTEND_URL.WISHLIST)
   // Filter & Sort (Client-side - only on current page data)
   const filteredProducts = products
     .filter((product) => {
@@ -258,20 +258,20 @@ const ProductListing = () => {
                       </div>
                       <h4 className="text-white font-semibold">My Profile</h4>
                     </div>
-                  <button
-  onClick={orderpage}
-  className="w-full flex items-center gap-2 text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1"
->
-  <ShoppingBag size={18} />
-  <span>My Orders</span>
-</button>
-         <button
-  onClick={wishlist}
-  className="w-full flex items-center gap-2 text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1"
->
-  <Heart  size={18} />
-  <span>wishlist</span>
-</button>
+                    <button
+                      onClick={orderpage}
+                      className="w-full flex items-center gap-2 text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1"
+                    >
+                      <ShoppingBag size={18} />
+                      <span>My Orders</span>
+                    </button>
+                    <button
+                      onClick={wishlist}
+                      className="w-full flex items-center gap-2 text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1"
+                    >
+                      <Heart size={18} />
+                      <span>wishlist</span>
+                    </button>
                     <button onClick={openAddressModal} className="w-full text-left px-4 py-3 hover:bg-zinc-800 rounded-xl text-sm mb-1">
                       ➕ Add Address
                     </button>
@@ -291,9 +291,8 @@ const ProductListing = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2 rounded-3xl text-sm font-medium transition-all ${
-                  selectedCategory === cat ? 'bg-violet-600 text-white' : 'bg-zinc-900 hover:bg-zinc-800'
-                }`}
+                className={`px-5 py-2 rounded-3xl text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-violet-600 text-white' : 'bg-zinc-900 hover:bg-zinc-800'
+                  }`}
               >
                 {cat}
               </button>
@@ -431,11 +430,10 @@ const ProductListing = () => {
                 <button
                   key={page}
                   onClick={() => goToPage(page)}
-                  className={`w-10 h-10 rounded-2xl font-medium transition-colors ${
-                    currentPage === page
+                  className={`w-10 h-10 rounded-2xl font-medium transition-colors ${currentPage === page
                       ? 'bg-violet-600 text-white'
                       : 'bg-zinc-900 hover:bg-zinc-800'
-                  }`}
+                    }`}
                 >
                   {page}
                 </button>
