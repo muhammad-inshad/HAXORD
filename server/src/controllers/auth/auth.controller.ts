@@ -53,9 +53,9 @@ async getMe(req: Request, res: Response) {
   try {
     const id = req.user?.id;
     if (!id) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
+      return res.status(200).json({
+        success: true,
+        user: null,
       });
     }
     const data = await this.authService.getMe(id);

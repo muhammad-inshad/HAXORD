@@ -41,8 +41,53 @@ export const authMiddleware = (
 
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
+    });
+
+    req.user = decodedRefresh;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+export const optionalAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const accessToken = req.cookies.accessToken;
+
+    if (accessToken) {
+      try {
+        const decoded = verifyAccessToken(accessToken) as AuthUserPayload;
+        req.user = decoded;
+        return next();
+      } catch (err) {
+        console.log("Access token expired");
+      }
+    }
+
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return next();
+    }
+
+    const decodedRefresh = verifyRefreshToken(refreshToken) as AuthUserPayload;
+
+    const newAccessToken = generateAccessToken({
+      id: decodedRefresh.id,
+      email: decodedRefresh.email,
+      isAdmin: decodedRefresh.isAdmin,
+    });
+
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
     });
 
     req.user = decodedRefresh;

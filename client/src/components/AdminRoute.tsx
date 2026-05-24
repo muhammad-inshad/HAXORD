@@ -24,7 +24,9 @@ const AdminRoute = () => {
       try {
         const data = await getCurrentUser();
 
-        dispatch(loginSuccess({ user: data.user }));
+        if (data.user) {
+          dispatch(loginSuccess({ user: data.user }));
+        }
 
       } catch (error) {
         console.log(error);
