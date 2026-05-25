@@ -1,11 +1,7 @@
-import React, { useState } from 'react'
-import {  Search, Shield, ShieldOff, Pencil, X, Check, ChevronUp, ChevronDown } from 'lucide-react';
-
+import React, { useState } from 'react';
+import { Search, Shield, ShieldOff, Pencil, X, Check, ChevronUp, ChevronDown } from 'lucide-react';
 import Sidebar from './Sidebar';
 
-
-
-// ─── Types ──────────────────────────────────────────────────────────────────
 interface User {
   id: number;
   name: string;
@@ -20,18 +16,16 @@ interface EditModal {
   user: User | null;
 }
 
-// ─── Mock data ───────────────────────────────────────────────────────────────
 const INITIAL_USERS: User[] = [
-  { id: 1, name: 'Arjun Nair',      email: 'arjun@example.com',   isBlocked: false, joinedAt: '2024-01-12', role: 'user'      },
-  { id: 2, name: 'Priya Menon',     email: 'priya@example.com',   isBlocked: true,  joinedAt: '2024-02-08', role: 'user'      },
-  { id: 3, name: 'Rahul Sharma',    email: 'rahul@example.com',   isBlocked: false, joinedAt: '2024-03-21', role: 'moderator' },
-  { id: 4, name: 'Sneha Pillai',    email: 'sneha@example.com',   isBlocked: false, joinedAt: '2024-04-05', role: 'user'      },
-  { id: 5, name: 'Vikram Das',      email: 'vikram@example.com',  isBlocked: true,  joinedAt: '2024-05-17', role: 'user'      },
-  { id: 6, name: 'Kavya Krishnan',  email: 'kavya@example.com',   isBlocked: false, joinedAt: '2024-06-30', role: 'user'      },
-  { id: 7, name: 'Aditya Varma',    email: 'aditya@example.com',  isBlocked: false, joinedAt: '2024-07-14', role: 'moderator' },
+  { id: 1, name: 'Arjun Nair',     email: 'arjun@example.com',  isBlocked: false, joinedAt: '2024-01-12', role: 'user'      },
+  { id: 2, name: 'Priya Menon',    email: 'priya@example.com',  isBlocked: true,  joinedAt: '2024-02-08', role: 'user'      },
+  { id: 3, name: 'Rahul Sharma',   email: 'rahul@example.com',  isBlocked: false, joinedAt: '2024-03-21', role: 'moderator' },
+  { id: 4, name: 'Sneha Pillai',   email: 'sneha@example.com',  isBlocked: false, joinedAt: '2024-04-05', role: 'user'      },
+  { id: 5, name: 'Vikram Das',     email: 'vikram@example.com', isBlocked: true,  joinedAt: '2024-05-17', role: 'user'      },
+  { id: 6, name: 'Kavya Krishnan', email: 'kavya@example.com',  isBlocked: false, joinedAt: '2024-06-30', role: 'user'      },
+  { id: 7, name: 'Aditya Varma',   email: 'aditya@example.com', isBlocked: false, joinedAt: '2024-07-14', role: 'moderator' },
 ];
 
-// ─── UserManagement page ─────────────────────────────────────────────────────
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [search, setSearch] = useState('');
@@ -42,15 +36,11 @@ const UserManagement = () => {
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
 
-  // ── Derived list
   const filtered = users
     .filter(u => {
       const q = search.toLowerCase();
       const matchSearch = u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
-      const matchStatus =
-        filterBlocked === 'all' ? true :
-        filterBlocked === 'blocked' ? u.isBlocked :
-        !u.isBlocked;
+      const matchStatus = filterBlocked === 'all' ? true : filterBlocked === 'blocked' ? u.isBlocked : !u.isBlocked;
       return matchSearch && matchStatus;
     })
     .sort((a, b) => {
@@ -60,7 +50,6 @@ const UserManagement = () => {
       return 0;
     });
 
-  // ── Handlers
   const toggleBlock = (id: number) =>
     setUsers(prev => prev.map(u => u.id === id ? { ...u, isBlocked: !u.isBlocked } : u));
 
@@ -89,41 +78,39 @@ const UserManagement = () => {
 
   const SortIcon = ({ field }: { field: keyof User }) =>
     sortField === field
-      ? (sortAsc ? <ChevronUp size={13} className="text-violet-400" /> : <ChevronDown size={13} className="text-violet-400" />)
-      : <ChevronUp size={13} className="text-zinc-700" />;
+      ? (sortAsc ? <ChevronUp size={12} className="text-violet-400" /> : <ChevronDown size={12} className="text-violet-400" />)
+      : <ChevronUp size={12} className="text-zinc-700" />;
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-white font-sans">
       <Sidebar />
 
-      {/* ── Main content */}
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 overflow-auto pt-14 md:pt-0 px-4 sm:px-8 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-white">User Management</h1>
+        <div className="mb-6">
+          <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-white">User Management</h1>
           <p className="text-zinc-500 text-sm mt-1">View, edit, block or unblock registered users.</p>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
           {[
-            { label: 'Total Users',    value: users.length,                         color: 'text-violet-400' },
-            { label: 'Active',         value: users.filter(u => !u.isBlocked).length, color: 'text-emerald-400' },
-            { label: 'Blocked',        value: users.filter(u => u.isBlocked).length,  color: 'text-red-400'    },
+            { label: 'Total',   value: users.length,                          color: 'text-violet-400' },
+            { label: 'Active',  value: users.filter(u => !u.isBlocked).length, color: 'text-emerald-400' },
+            { label: 'Blocked', value: users.filter(u => u.isBlocked).length,  color: 'text-red-400'    },
           ].map(s => (
-            <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4">
-              <p className="text-zinc-500 text-xs uppercase tracking-widest mb-1">{s.label}</p>
-              <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+            <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+              <p className="text-zinc-500 text-[10px] sm:text-xs uppercase tracking-widest mb-1">{s.label}</p>
+              <p className={`text-2xl sm:text-3xl font-bold ${s.color}`}>{s.value}</p>
             </div>
           ))}
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-3 mb-5">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="relative flex-1 min-w-[160px] max-w-sm">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -132,16 +119,13 @@ const UserManagement = () => {
             />
           </div>
 
-          {/* Filter tabs */}
           <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1">
             {(['all', 'active', 'blocked'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilterBlocked(f)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${
-                  filterBlocked === f
-                    ? 'bg-violet-600 text-white'
-                    : 'text-zinc-400 hover:text-white'
+                className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium capitalize transition-colors ${
+                  filterBlocked === f ? 'bg-violet-600 text-white' : 'text-zinc-400 hover:text-white'
                 }`}
               >
                 {f}
@@ -150,18 +134,18 @@ const UserManagement = () => {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+        {/* ── Desktop table ── */}
+        <div className="hidden md:block bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-800 text-zinc-500 text-xs uppercase tracking-widest">
                 {[
-                  { label: '#',       field: 'id'        as keyof User },
-                  { label: 'Name',    field: 'name'      as keyof User },
-                  { label: 'Email',   field: 'email'     as keyof User },
-                  { label: 'Role',    field: 'role'      as keyof User },
-                  { label: 'Joined',  field: 'joinedAt'  as keyof User },
-                  { label: 'Status',  field: 'isBlocked' as keyof User },
+                  { label: '#',      field: 'id'        as keyof User },
+                  { label: 'Name',   field: 'name'      as keyof User },
+                  { label: 'Email',  field: 'email'     as keyof User },
+                  { label: 'Role',   field: 'role'      as keyof User },
+                  { label: 'Joined', field: 'joinedAt'  as keyof User },
+                  { label: 'Status', field: 'isBlocked' as keyof User },
                 ].map(col => (
                   <th
                     key={col.field}
@@ -178,77 +162,25 @@ const UserManagement = () => {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="text-center py-16 text-zinc-600">No users found.</td>
-                </tr>
+                <tr><td colSpan={7} className="text-center py-16 text-zinc-600">No users found.</td></tr>
               )}
               {filtered.map((user, idx) => (
                 <tr
                   key={user.id}
-                  className={`border-b border-zinc-800/60 transition-colors hover:bg-zinc-800/40 ${
-                    user.isBlocked ? 'opacity-60' : ''
-                  }`}
+                  className={`border-b border-zinc-800/60 hover:bg-zinc-800/40 transition-colors ${user.isBlocked ? 'opacity-60' : ''}`}
                 >
-                  {/* # */}
-                  <td className="px-5 py-4 text-zinc-600 font-mono">{String(idx + 1).padStart(2, '0')}</td>
-
-                  {/* Name */}
+                  <td className="px-5 py-4 text-zinc-600 font-mono text-xs">{String(idx + 1).padStart(2, '0')}</td>
                   <td className="px-5 py-4 font-medium text-white">{user.name}</td>
-
-                  {/* Email */}
                   <td className="px-5 py-4 text-zinc-400">{user.email}</td>
-
-                  {/* Role */}
                   <td className="px-5 py-4">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide ${
-                      user.role === 'moderator'
-                        ? 'bg-violet-500/15 text-violet-400'
-                        : 'bg-zinc-800 text-zinc-400'
-                    }`}>
-                      {user.role}
-                    </span>
+                    <RoleBadge role={user.role} />
                   </td>
-
-                  {/* Joined */}
                   <td className="px-5 py-4 text-zinc-500 font-mono text-xs">{user.joinedAt}</td>
-
-                  {/* Status */}
                   <td className="px-5 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
-                      user.isBlocked
-                        ? 'bg-red-500/10 text-red-400'
-                        : 'bg-emerald-500/10 text-emerald-400'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${user.isBlocked ? 'bg-red-400' : 'bg-emerald-400'}`} />
-                      {user.isBlocked ? 'Blocked' : 'Active'}
-                    </span>
+                    <StatusBadge isBlocked={user.isBlocked} />
                   </td>
-
-                  {/* Actions */}
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      {/* Edit */}
-                      <button
-                        onClick={() => openEdit(user)}
-                        title="Edit user"
-                        className="p-2 rounded-lg bg-zinc-800 hover:bg-violet-600/20 hover:text-violet-400 text-zinc-400 transition-colors"
-                      >
-                        <Pencil size={14} />
-                      </button>
-
-                      {/* Block / Unblock */}
-                      <button
-                        onClick={() => toggleBlock(user.id)}
-                        title={user.isBlocked ? 'Unblock user' : 'Block user'}
-                        className={`p-2 rounded-lg transition-colors ${
-                          user.isBlocked
-                            ? 'bg-zinc-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-zinc-400'
-                            : 'bg-zinc-800 hover:bg-red-500/20 hover:text-red-400 text-zinc-400'
-                        }`}
-                      >
-                        {user.isBlocked ? <ShieldOff size={14} /> : <Shield size={14} />}
-                      </button>
-                    </div>
+                    <ActionButtons user={user} onEdit={openEdit} onToggle={toggleBlock} />
                   </td>
                 </tr>
               ))}
@@ -256,23 +188,72 @@ const UserManagement = () => {
           </table>
         </div>
 
-        {/* Footer count */}
+        {/* ── Mobile cards ── */}
+        <div className="md:hidden space-y-3">
+          {filtered.length === 0 && (
+            <p className="text-center py-16 text-zinc-600 text-sm">No users found.</p>
+          )}
+          {filtered.map((user) => (
+            <div
+              key={user.id}
+              className={`bg-zinc-900 border border-zinc-800 rounded-2xl p-4 transition-opacity ${user.isBlocked ? 'opacity-60' : ''}`}
+            >
+              {/* Top row */}
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-white text-sm leading-snug">{user.name}</p>
+                  <p className="text-zinc-400 text-xs mt-0.5 truncate">{user.email}</p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <StatusBadge isBlocked={user.isBlocked} />
+                </div>
+              </div>
+
+              {/* Meta row */}
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
+                <RoleBadge role={user.role} />
+                <span className="text-zinc-500 font-mono text-[10px]">{user.joinedAt}</span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 border-t border-zinc-800 pt-3">
+                <button
+                  onClick={() => openEdit(user)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-800 hover:bg-violet-600/20 hover:text-violet-400 text-zinc-400 text-xs font-medium transition-colors"
+                >
+                  <Pencil size={13} /> Edit
+                </button>
+                <button
+                  onClick={() => toggleBlock(user.id)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition-colors ${
+                    user.isBlocked
+                      ? 'bg-zinc-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-zinc-400'
+                      : 'bg-zinc-800 hover:bg-red-500/20 hover:text-red-400 text-zinc-400'
+                  }`}
+                >
+                  {user.isBlocked ? <><ShieldOff size={13} /> Unblock</> : <><Shield size={13} /> Block</>}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <p className="text-zinc-600 text-xs mt-4">
           Showing {filtered.length} of {users.length} users
         </p>
       </main>
 
-      {/* ── Edit Modal */}
+      {/* Edit Modal */}
       {editModal.open && editModal.user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-7 w-full max-w-md shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-white">Edit User</h2>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
+          <div className="bg-zinc-900 border border-zinc-700 sm:rounded-2xl rounded-t-2xl p-6 w-full sm:max-w-md shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-bold text-white">Edit User</h2>
               <button
                 onClick={() => setEditModal({ open: false, user: null })}
                 className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
               >
-                <X size={18} />
+                <X size={17} />
               </button>
             </div>
 
@@ -295,7 +276,7 @@ const UserManagement = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-7">
+            <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setEditModal({ open: false, user: null })}
                 className="flex-1 py-2.5 rounded-xl border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors text-sm"
@@ -306,8 +287,7 @@ const UserManagement = () => {
                 onClick={saveEdit}
                 className="flex-1 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
               >
-                <Check size={16} />
-                Save Changes
+                <Check size={15} /> Save Changes
               </button>
             </div>
           </div>
@@ -316,5 +296,48 @@ const UserManagement = () => {
     </div>
   );
 };
+
+// ── Shared sub-components
+const RoleBadge = ({ role }: { role: 'user' | 'moderator' }) => (
+  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide ${
+    role === 'moderator' ? 'bg-violet-500/15 text-violet-400' : 'bg-zinc-800 text-zinc-400'
+  }`}>
+    {role}
+  </span>
+);
+
+const StatusBadge = ({ isBlocked }: { isBlocked: boolean }) => (
+  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+    isBlocked ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400'
+  }`}>
+    <span className={`w-1.5 h-1.5 rounded-full ${isBlocked ? 'bg-red-400' : 'bg-emerald-400'}`} />
+    {isBlocked ? 'Blocked' : 'Active'}
+  </span>
+);
+
+const ActionButtons = ({
+  user, onEdit, onToggle,
+}: {
+  user: User;
+  onEdit: (u: User) => void;
+  onToggle: (id: number) => void;
+}) => (
+  <div className="flex items-center gap-2">
+    <button onClick={() => onEdit(user)} title="Edit user" className="p-2 rounded-lg bg-zinc-800 hover:bg-violet-600/20 hover:text-violet-400 text-zinc-400 transition-colors">
+      <Pencil size={13} />
+    </button>
+    <button
+      onClick={() => onToggle(user.id)}
+      title={user.isBlocked ? 'Unblock user' : 'Block user'}
+      className={`p-2 rounded-lg transition-colors ${
+        user.isBlocked
+          ? 'bg-zinc-800 hover:bg-emerald-500/20 hover:text-emerald-400 text-zinc-400'
+          : 'bg-zinc-800 hover:bg-red-500/20 hover:text-red-400 text-zinc-400'
+      }`}
+    >
+      {user.isBlocked ? <ShieldOff size={13} /> : <Shield size={13} />}
+    </button>
+  </div>
+);
 
 export default UserManagement;
